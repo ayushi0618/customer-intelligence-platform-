@@ -12,6 +12,7 @@
     "ml:start": "python -m uvicorn app.main:app --app-dir ml-service --host 0.0.0.0 --port 8000 --reload"
   },
   "dependencies": {
+    "@vercel/analytics": "^2.0.1",
     "bcryptjs": "^3.0.3",
     "dotenv": "^16.4.5",
     "mysql2": "^3.11.3"
