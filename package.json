@@ -1,0 +1,19 @@
+{
+  "name": "customer-intelligence-system",
+  "version": "1.0.0",
+  "description": "Multi-Channel Customer Behaviour & Marketing Intelligence System",
+  "scripts": {
+    "migrate": "node database/scripts/migrate.js",
+    "seed": "node database/scripts/seed.js",
+    "validate": "node database/scripts/validate_data.js",
+    "backend:dev": "npm --prefix backend run dev",
+    "backend:start": "npm --prefix backend start",
+    "frontend:dev": "npm --prefix frontend run dev",
+    "ml:start": "python -m uvicorn app.main:app --app-dir ml-service --host 0.0.0.0 --port 8000 --reload"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "dotenv": "^16.4.5",
+    "mysql2": "^3.11.3"
+  }
+}
