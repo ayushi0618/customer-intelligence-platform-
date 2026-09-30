@@ -41,7 +41,7 @@ class AnalyticsRepository {
     const { total_orders, total_revenue, aov, ordering_customers } = orderTotals[0];
 
     // 2. Total active customers
-    const [custTotals] = await pool.query('SELECT COUNT(id) as total_customers FROM customers WHERE status = "ACTIVE";');
+    const [custTotals] = await pool.query("SELECT COUNT(id) as total_customers FROM customers WHERE status = 'ACTIVE';");
     const total_customers = custTotals[0].total_customers;
 
     // 3. Repeat purchase rate
