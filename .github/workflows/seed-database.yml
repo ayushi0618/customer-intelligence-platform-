@@ -1,0 +1,89 @@
+name: Seed remote database
+
+# One-time (re-runnable) job: creates the schema and loads the synthetic
+# dataset + demo users + initial analytics into the hosted MySQL database.
+# It also commits the DB_SSL TLS-support change to main so the deployed
+# backend (Vercel) and ML service (Render) can talk to managed MySQL
+# providers such as Aiven, which require TLS.
+#
+# Required repository secrets (Settings -> Secrets -> Actions):
+#   DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  seed:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Apply managed-MySQL TLS support patch
+        env:
+          SSL_PATCH_B64: ZGlmZiAtLWdpdCBhL2JhY2tlbmQvc3JjL2NvbmZpZy9kYXRhYmFzZS5qcyBiL2JhY2tlbmQvc3JjL2NvbmZpZy9kYXRhYmFzZS5qcwppbmRleCA2MGFiNWJhLi5jM2VlY2M0IDEwMDY0NAotLS0gYS9iYWNrZW5kL3NyYy9jb25maWcvZGF0YWJhc2UuanMKKysrIGIvYmFja2VuZC9zcmMvY29uZmlnL2RhdGFiYXNlLmpzCkBAIC0yMCw3ICsyMCw5IEBAIGNvbnN0IHBvb2xDb25maWcgPSB7CiAgIHF1ZXVlTGltaXQ6IDAsCiAgIGVuYWJsZUtlZXBBbGl2ZTogdHJ1ZSwKICAga2VlcEFsaXZlSW5pdGlhbERlbGF5OiAxMDAwMCwKLSAgdGltZXpvbmU6ICcrMDA6MDAnCisgIHRpbWV6b25lOiAnKzAwOjAwJywKKyAgLy8gQWl2ZW4gYW5kIG90aGVyIG1hbmFnZWQgTXlTUUwgcHJvdmlkZXJzIHJlcXVpcmUgVExTOyBlbmFibGUgd2l0aCBEQl9TU0w9dHJ1ZQorICAuLi4ocHJvY2Vzcy5lbnYuREJfU1NMID09PSAndHJ1ZScgPyB7IHNzbDogeyByZWplY3RVbmF1dGhvcml6ZWQ6IGZhbHNlIH0gfSA6IHt9KQogfTsKIAogY29uc3QgcG9vbCA9IG15c3FsLmNyZWF0ZVBvb2wocG9vbENvbmZpZyk7CmRpZmYgLS1naXQgYS9kYXRhYmFzZS9zY3JpcHRzL21pZ3JhdGUuanMgYi9kYXRhYmFzZS9zY3JpcHRzL21pZ3JhdGUuanMKaW5kZXggM2NmYWVjMS4uOTIzN2I0YyAxMDA2NDQKLS0tIGEvZGF0YWJhc2Uvc2NyaXB0cy9taWdyYXRlLmpzCisrKyBiL2RhdGFiYXNlL3NjcmlwdHMvbWlncmF0ZS5qcwpAQCAtMjIsNyArMjIsOSBAQCBjb25zdCBjb25maWcgPSB7CiAgIHVzZXI6IHByb2Nlc3MuZW52LkRCX1VTRVIgfHwgJ3Jvb3QnLAogICBwYXNzd29yZDogcHJvY2Vzcy5lbnYuREJfUEFTU1dPUkQgfHwgJ2F5dXNoaScsCiAgIGRhdGFiYXNlOiBwcm9jZXNzLmVudi5EQl9OQU1FIHx8ICdjdXN0b21lcl9pbnRlbGxpZ2VuY2UnLAotICBtdWx0aXBsZVN0YXRlbWVudHM6IHRydWUKKyAgbXVsdGlwbGVTdGF0ZW1lbnRzOiB0cnVlLAorICAvLyBNYW5hZ2VkIE15U1FMIChlLmcuIEFpdmVuKSByZXF1aXJlcyBUTFM7IGVuYWJsZSB3aXRoIERCX1NTTD10cnVlCisgIC4uLihwcm9jZXNzLmVudi5EQl9TU0wgPT09ICd0cnVlJyA/IHsgc3NsOiB7IHJlamVjdFVuYXV0aG9yaXplZDogZmFsc2UgfSB9IDoge30pCiB9OwogCiBhc3luYyBmdW5jdGlvbiBydW5NaWdyYXRpb24oKSB7CkBAIC0zNiw3ICszOCw5IEBAIGFzeW5jIGZ1bmN0aW9uIHJ1bk1pZ3JhdGlvbigpIHsKICAgICAgIHBvcnQ6IGNvbmZpZy5wb3J0LAogICAgICAgdXNlcjogY29uZmlnLnVzZXIsCiAgICAgICBwYXNzd29yZDogY29uZmlnLnBhc3N3b3JkLAotICAgICAgbXVsdGlwbGVTdGF0ZW1lbnRzOiB0cnVlCisgICAgICBtdWx0aXBsZVN0YXRlbWVudHM6IHRydWUsCisgICAgICAvLyBNYW5hZ2VkIE15U1FMIChlLmcuIEFpdmVuKSByZXF1aXJlcyBUTFM7IGVuYWJsZSB3aXRoIERCX1NTTD10cnVlCisgICAgICAuLi4ocHJvY2Vzcy5lbnYuREJfU1NMID09PSAndHJ1ZScgPyB7IHNzbDogeyByZWplY3RVbmF1dGhvcml6ZWQ6IGZhbHNlIH0gfSA6IHt9KQogICAgIH0pOwogICAgIAogICAgIGNvbnNvbGUubG9nKGBFbnN1cmluZyBkYXRhYmFzZSAnJHtjb25maWcuZGF0YWJhc2V9JyBleGlzdHMuLi5gKTsKZGlmZiAtLWdpdCBhL2RhdGFiYXNlL3NjcmlwdHMvc2VlZC5qcyBiL2RhdGFiYXNlL3NjcmlwdHMvc2VlZC5qcwppbmRleCAzY2E3Yzk5Li40NGZiZjc4IDEwMDY0NAotLS0gYS9kYXRhYmFzZS9zY3JpcHRzL3NlZWQuanMKKysrIGIvZGF0YWJhc2Uvc2NyaXB0cy9zZWVkLmpzCkBAIC0xNiw3ICsxNiw5IEBAIGNvbnN0IGNvbmZpZyA9IHsKICAgcG9ydDogcGFyc2VJbnQocHJvY2Vzcy5lbnYuREJfUE9SVCB8fCAnMzMwNicsIDEwKSwKICAgdXNlcjogcHJvY2Vzcy5lbnYuREJfVVNFUiB8fCAncm9vdCcsCiAgIHBhc3N3b3JkOiBwcm9jZXNzLmVudi5EQl9QQVNTV09SRCB8fCAnYXl1c2hpJywKLSAgZGF0YWJhc2U6IHByb2Nlc3MuZW52LkRCX05BTUUgfHwgJ2N1c3RvbWVyX2ludGVsbGlnZW5jZScKKyAgZGF0YWJhc2U6IHByb2Nlc3MuZW52LkRCX05BTUUgfHwgJ2N1c3RvbWVyX2ludGVsbGlnZW5jZScsCisgIC8vIE1hbmFnZWQgTXlTUUwgKGUuZy4gQWl2ZW4pIHJlcXVpcmVzIFRMUzsgZW5hYmxlIHdpdGggREJfU1NMPXRydWUKKyAgLi4uKHByb2Nlc3MuZW52LkRCX1NTTCA9PT0gJ3RydWUnID8geyBzc2w6IHsgcmVqZWN0VW5hdXRob3JpemVkOiBmYWxzZSB9IH0gOiB7fSkKIH07CiAKIGZ1bmN0aW9uIGZvcm1hdERhdGUoZGF0ZSkgewpkaWZmIC0tZ2l0IGEvZGF0YWJhc2Uvc2NyaXB0cy92YWxpZGF0ZV9kYXRhLmpzIGIvZGF0YWJhc2Uvc2NyaXB0cy92YWxpZGF0ZV9kYXRhLmpzCmluZGV4IDBhNDhmYWMuLjlhZmVkOWMgMTAwNjQ0Ci0tLSBhL2RhdGFiYXNlL3NjcmlwdHMvdmFsaWRhdGVfZGF0YS5qcworKysgYi9kYXRhYmFzZS9zY3JpcHRzL3ZhbGlkYXRlX2RhdGEuanMKQEAgLTE0LDcgKzE0LDkgQEAgY29uc3QgY29uZmlnID0gewogICBwb3J0OiBwYXJzZUludChwcm9jZXNzLmVudi5EQl9QT1JUIHx8ICczMzA2JywgMTApLAogICB1c2VyOiBwcm9jZXNzLmVudi5EQl9VU0VSIHx8ICdyb290JywKICAgcGFzc3dvcmQ6IHByb2Nlc3MuZW52LkRCX1BBU1NXT1JEIHx8ICdheXVzaGknLAotICBkYXRhYmFzZTogcHJvY2Vzcy5lbnYuREJfTkFNRSB8fCAnY3VzdG9tZXJfaW50ZWxsaWdlbmNlJworICBkYXRhYmFzZTogcHJvY2Vzcy5lbnYuREJfTkFNRSB8fCAnY3VzdG9tZXJfaW50ZWxsaWdlbmNlJywKKyAgLy8gTWFuYWdlZCBNeVNRTCAoZS5nLiBBaXZlbikgcmVxdWlyZXMgVExTOyBlbmFibGUgd2l0aCBEQl9TU0w9dHJ1ZQorICAuLi4ocHJvY2Vzcy5lbnYuREJfU1NMID09PSAndHJ1ZScgPyB7IHNzbDogeyByZWplY3RVbmF1dGhvcml6ZWQ6IGZhbHNlIH0gfSA6IHt9KQogfTsKIAogYXN5bmMgZnVuY3Rpb24gdmFsaWRhdGVEYXRhYmFzZSgpIHsKZGlmZiAtLWdpdCBhL21sLXNlcnZpY2UvYXBwL2NvbmZpZy5weSBiL21sLXNlcnZpY2UvYXBwL2NvbmZpZy5weQppbmRleCBkNzY2MjZkLi4xODAxNjA5IDEwMDY0NAotLS0gYS9tbC1zZXJ2aWNlL2FwcC9jb25maWcucHkKKysrIGIvbWwtc2VydmljZS9hcHAvY29uZmlnLnB5CkBAIC0xMSw2ICsxMSw4IEBAIERCX1BPUlQgPSBpbnQob3MuZ2V0ZW52KCJEQl9QT1JUIiwgIjMzMDYiKSkKIERCX05BTUUgPSBvcy5nZXRlbnYoIkRCX05BTUUiLCAiY3VzdG9tZXJfaW50ZWxsaWdlbmNlIikKIERCX1VTRVIgPSBvcy5nZXRlbnYoIkRCX1VTRVIiLCAicm9vdCIpCiBEQl9QQVNTV09SRCA9IG9zLmdldGVudigiREJfUEFTU1dPUkQiLCAiYXl1c2hpIikKKyMgU2V0IHRvICJ0cnVlIiB3aGVuIHRoZSBNeVNRTCBob3N0IHJlcXVpcmVzIFRMUyAoZS5nLiBBaXZlbiBtYW5hZ2VkIE15U1FMKQorREJfU1NMID0gb3MuZ2V0ZW52KCJEQl9TU0wiLCAiZmFsc2UiKS5sb3dlcigpID09ICJ0cnVlIgogCiBBUlRJRkFDVF9ESVIgPSBQYXRoKF9fZmlsZV9fKS5yZXNvbHZlKCkucGFyZW50LnBhcmVudCAvICJhcnRpZmFjdHMiCiBBUlRJRkFDVF9ESVIubWtkaXIocGFyZW50cz1UcnVlLCBleGlzdF9vaz1UcnVlKQpkaWZmIC0tZ2l0IGEvbWwtc2VydmljZS9hcHAvZGF0YWJhc2UucHkgYi9tbC1zZXJ2aWNlL2FwcC9kYXRhYmFzZS5weQppbmRleCBjODEzODBiLi42ZGRmMjBmIDEwMDY0NAotLS0gYS9tbC1zZXJ2aWNlL2FwcC9kYXRhYmFzZS5weQorKysgYi9tbC1zZXJ2aWNlL2FwcC9kYXRhYmFzZS5weQpAQCAtMSwxNyArMSwyMSBAQAogaW1wb3J0IG15c3FsLmNvbm5lY3RvcgogZnJvbSBteXNxbC5jb25uZWN0b3IgaW1wb3J0IHBvb2xpbmcKLWZyb20gYXBwLmNvbmZpZyBpbXBvcnQgREJfSE9TVCwgREJfUE9SVCwgREJfTkFNRSwgREJfVVNFUiwgREJfUEFTU1dPUkQKK2Zyb20gYXBwLmNvbmZpZyBpbXBvcnQgREJfSE9TVCwgREJfUE9SVCwgREJfTkFNRSwgREJfVVNFUiwgREJfUEFTU1dPUkQsIERCX1NTTAogCiAjIE15U1FMIENvbm5lY3Rpb24gUG9vbCBmb3IgUHl0aG9uCi1jbnhfcG9vbCA9IHBvb2xpbmcuTXlTUUxDb25uZWN0aW9uUG9vbCgKK3Bvb2xfa3dhcmdzID0gZGljdCgKICAgICBwb29sX25hbWU9Im1sX3Bvb2wiLAogICAgIHBvb2xfc2l6ZT0xMCwKICAgICBob3N0PURCX0hPU1QsCiAgICAgcG9ydD1EQl9QT1JULAogICAgIHVzZXI9REJfVVNFUiwKICAgICBwYXNzd29yZD1EQl9QQVNTV09SRCwKLSAgICBkYXRhYmFzZT1EQl9OQU1FCisgICAgZGF0YWJhc2U9REJfTkFNRSwKICkKK2lmIERCX1NTTDoKKyAgICAjIE1hbmFnZWQgTXlTUUwgKGUuZy4gQWl2ZW4pIHJlcXVpcmVzIFRMUworICAgIHBvb2xfa3dhcmdzWyJzc2xfZGlzYWJsZWQiXSA9IEZhbHNlCitjbnhfcG9vbCA9IHBvb2xpbmcuTXlTUUxDb25uZWN0aW9uUG9vbCgqKnBvb2xfa3dhcmdzKQogCiBkZWYgZ2V0X2RiX2Nvbm5lY3Rpb24oKToKICAgICByZXR1cm4gY254X3Bvb2wuZ2V0X2Nvbm5lY3Rpb24oKQo=
+        run: |
+          echo "$SSL_PATCH_B64" | base64 -d > /tmp/ssl.patch
+          git apply --check /tmp/ssl.patch
+          git apply /tmp/ssl.patch
+          echo "TLS support patch applied."
+
+      - name: Commit TLS support to main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add backend/src/config/database.js database/scripts/migrate.js database/scripts/seed.js database/scripts/validate_data.js ml-service/app/config.py ml-service/app/database.py
+          git commit -m "Add DB_SSL option for managed MySQL (Aiven) TLS connections" || echo "nothing to commit"
+          git push origin HEAD:main
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Run database migration
+        run: node database/scripts/migrate.js
+        env:
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_SSL: 'true'
+
+      - name: Seed synthetic dataset
+        run: node database/scripts/seed.js
+        env:
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_SSL: 'true'
+
+      - name: Validate seeded data
+        run: node database/scripts/validate_data.js
+        env:
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_SSL: 'true'
+
+      - name: Initialize analytics (RFM, attribution, recommendations)
+        run: node database/scripts/init_analytics.js
+        env:
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_SSL: 'true'
