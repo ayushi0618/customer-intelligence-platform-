@@ -43,7 +43,7 @@ def train_clustering(df, n_clusters=4):
     for k in range(3, 7):
         km_test = KMeans(n_clusters=k, random_state=42, n_init=10)
         labels_test = km_test.fit_predict(X_scaled)
-        sil = silhouette_score(X_scaled, labels_test)
+        sil = silhouette_score(X_scaled, labels_test, sample_size=3000, random_state=42)
         k_eval[k] = {
             "inertia": float(km_test.inertia_),
             "silhouette_score": float(sil)
@@ -52,7 +52,7 @@ def train_clustering(df, n_clusters=4):
     # Fit final model
     model = KMeans(n_clusters=n_clusters, random_state=42, n_init=10)
     cluster_ids = model.fit_predict(X_scaled)
-    final_sil = silhouette_score(X_scaled, cluster_ids)
+    final_sil = silhouette_score(X_scaled, cluster_ids, sample_size=3000, random_state=42)
 
     # Distance to centroids
     distances = np.min(model.transform(X_scaled), axis=1)
