@@ -88,7 +88,7 @@ async function validateDatabase() {
           FROM orders o
         ) t WHERE ABS(t.total_amount - t.calc_total) > 1.00`
       },
-      { name: 'Null customer emails', sql: 'SELECT COUNT(*) as cnt FROM customers WHERE email IS NULL OR email = ""' },
+      { name: 'Null customer emails', sql: "SELECT COUNT(*) as cnt FROM customers WHERE email IS NULL OR email = ''" },
       { name: 'Duplicate customer emails', sql: 'SELECT email, COUNT(*) as cnt FROM customers GROUP BY email HAVING cnt > 1' }
     ];
 
