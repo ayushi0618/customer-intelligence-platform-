@@ -11,6 +11,8 @@ DB_PORT = int(os.getenv("DB_PORT", "3306"))
 DB_NAME = os.getenv("DB_NAME", "customer_intelligence")
 DB_USER = os.getenv("DB_USER", "root")
 DB_PASSWORD = os.getenv("DB_PASSWORD", "ayushi")
+# Set to "true" when the MySQL host requires TLS (e.g. Aiven managed MySQL)
+DB_SSL = os.getenv("DB_SSL", "false").lower() == "true"
 
 ARTIFACT_DIR = Path(__file__).resolve().parent.parent / "artifacts"
 ARTIFACT_DIR.mkdir(parents=True, exist_ok=True)

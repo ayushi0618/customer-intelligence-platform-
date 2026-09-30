@@ -16,7 +16,9 @@ const config = {
   port: parseInt(process.env.DB_PORT || '3306', 10),
   user: process.env.DB_USER || 'root',
   password: process.env.DB_PASSWORD || 'ayushi',
-  database: process.env.DB_NAME || 'customer_intelligence'
+  database: process.env.DB_NAME || 'customer_intelligence',
+  // Managed MySQL (e.g. Aiven) requires TLS; enable with DB_SSL=true
+  ...(process.env.DB_SSL === 'true' ? { ssl: { rejectUnauthorized: false } } : {})
 };
 
 function formatDate(date) {

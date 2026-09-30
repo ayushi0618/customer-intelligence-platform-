@@ -20,7 +20,9 @@ const poolConfig = {
   queueLimit: 0,
   enableKeepAlive: true,
   keepAliveInitialDelay: 10000,
-  timezone: '+00:00'
+  timezone: '+00:00',
+  // Aiven and other managed MySQL providers require TLS; enable with DB_SSL=true
+  ...(process.env.DB_SSL === 'true' ? { ssl: { rejectUnauthorized: false } } : {})
 };
 
 const pool = mysql.createPool(poolConfig);

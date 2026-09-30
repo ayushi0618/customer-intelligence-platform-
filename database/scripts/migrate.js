@@ -22,7 +22,9 @@ const config = {
   user: process.env.DB_USER || 'root',
   password: process.env.DB_PASSWORD || 'ayushi',
   database: process.env.DB_NAME || 'customer_intelligence',
-  multipleStatements: true
+  multipleStatements: true,
+  // Managed MySQL (e.g. Aiven) requires TLS; enable with DB_SSL=true
+  ...(process.env.DB_SSL === 'true' ? { ssl: { rejectUnauthorized: false } } : {})
 };
 
 async function runMigration() {
@@ -36,7 +38,9 @@ async function runMigration() {
       port: config.port,
       user: config.user,
       password: config.password,
-      multipleStatements: true
+      multipleStatements: true,
+      // Managed MySQL (e.g. Aiven) requires TLS; enable with DB_SSL=true
+      ...(process.env.DB_SSL === 'true' ? { ssl: { rejectUnauthorized: false } } : {})
     });
     
     console.log(`Ensuring database '${config.database}' exists...`);
